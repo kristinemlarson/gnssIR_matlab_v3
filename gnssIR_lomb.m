@@ -68,7 +68,10 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,varargin);
 % Using GPS Receivers, J. Glaciology, Vol. 61, No. 225, 
 % doi:10.3189/2015JoG14J130, 2015
 
+% september 2019
+% KL Added beidou, Galileo, and Glonass
 
+%
 % set up environment variables
 % IMPORTANT
 set_reflection_env_variables
@@ -169,9 +172,10 @@ frange = [minRH maxRH]; % this could be input.
 
 % get wavelength factor (lambda/2) and column where data are stored (ic)
 [cf,ic] = get_waveL(freqtype);
+% get_gnss_freq_scales(frq) has cf - but not the column
 
 % make header for the output txt file
-output_header( fid );
+output_header(fid);
 
 for a=1:naz
   if plt_type == 1 & plot2screen 
@@ -179,8 +183,7 @@ for a=1:naz
      figure
   end
   % window by these azimuths
-  if naz ~= 1
-  
+  if naz ~= 1  
     azim1 = (a-1)*azrange; azim2 = azim1 + azrange;
   end
   % window by satellite
@@ -233,7 +236,7 @@ for a=1:naz
         year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
           maxObsE, pknoise,freqtype,meanUTC);
       simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p, LW);
-      % save the values for the summary plot
+      % save the values if needed for the summary plot
       avg_maxRH = [avg_maxRH; RHestimated];
      
     else 
@@ -248,6 +251,10 @@ for a=1:naz
     plot_labels( plt_type, station, [azim1 azim2],freqtype);
   end
 end % azimuth loop
+fclose(fid); fclose(fid_reject);
+
+
+% old code
 %if plot2screen & plt_type == 0
 %  plot_labels( plt_type, station, [0 360], freqtype);
 %end
@@ -257,4 +264,3 @@ end % azimuth loop
 % and plot it as a magenta vertical line.
 %median_RH( plt_type, avg_maxRH, plot2screen )
 %average_RH( plt_type, avg_maxRH, plot2screen )
-fclose(fid); fclose(fid_reject);

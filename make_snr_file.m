@@ -58,34 +58,44 @@ if ~exist(finalsnr)
     disp('will try to download rinex')
     get_rinex(rinexfilename)
   end
-  if exist([navfiledir '/' navname])
+  if gps_or_gnss == 1
+    if exist([navfiledir '/' navname])
       disp('found the nav file')
-  else
-    disp('will try to find the navfile')
-    navexist = get_navfile(cyyyy,cdoy);
-    if navexist
+    else
+      disp('will try to find the navfile')
+      navexist = get_navfile(cyyyy,cdoy);
+      if navexist
         unix(['mv ' navname ' ' navfiledir]);
+      end
     end
+  else
+    filedir = [orbits '/' cyyyy '/sp3/'];
+    file1 = [filedir 'GFZ0MGXRAP_'  cyyyy cdoy '0000_01D_05M_ORB.SP3'];
+    if ~exist(file1)
+      fexist = get_gnss_sp3( year,doy );
+    end
+        
   end
   
-  if exist(navfile) && exist(rinexfilename)
-     
-     % make the SNR file using existing code       
-      dd = [exe '/gpsSNR.e ' rinexfilename ' ' finalsnr ' ' navfile ' ' num2str(snrc) ];
+  if exist(rinexfilename)
       if gps_or_gnss == 2
-           dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' navfile ' ' num2str(snrc) ];
-      end
-      unix(dd);
+        if exist(file1)  
+          dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' file1 ' ' num2str(snrc) ];
+          unix(dd);
+        end
+      else
+        if exist(navfile)
+          dd = [exe '/gpsSNR.e ' rinexfilename ' ' finalsnr ' ' navfile ' ' num2str(snrc) ];
+          unix(dd);
+        end
+      end  
       % clean up after yourself and rm the rinex files (both kinds)
       unix(['rm -f ' rinexfilename]);
   else
-      disp('a required input file does not exist')
+      disp('rinex file does not exist')
   end
-else
-   disp('SNR file exists')
-   nofile = true;
-
 end
+
 % return boolean to main code as to file existence.
 if exist(finalsnr)
     nofile = false;
