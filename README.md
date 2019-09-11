@@ -1,8 +1,8 @@
 # gnssIR_matlab_v3
 This code is basd on a previous matlab library that was published in
 GPS Solutions and the GPS Tool Box. It is also hosted on my gitHub account.
-Version 2 is my attempt to make code available that is better oriented towards
-routine analysis and parallel to the python code.
+Version 3 is my attempt to make code available that is better oriented towards
+routine analysis and more similar to the python code.
 
 There is no refraction error as yet. Nor is the RH dot correction done.
 
@@ -20,7 +20,7 @@ I do not control these codes - but they are very important modules in the GPS/GN
 
 * REFL_CODE = where the reflection code file (SNR files and results) will be stored
 
-* Until I can figure out how to access environment variables in Matlab using bash, you need
+* Until I can figure out how to access environment variables in Matlab using bash, you also need
 to define the wget executable and store that as environment variable WGET
 
 Executables 
@@ -36,24 +36,21 @@ in the EXE directory.
 
 # Running the Code
 
-The main function call is gnssIR_lomb.m  
-It has required inputs and optional inputs.
+The main function call is gnssIR_lomb.m  It has both required and optional inputs.
 
 Required:
 * station name (4 characters, lowercase)
 * year 
 * day of year
 
-* freqtype, for GPS this is 1, 2, or 5.  
-Glonass, 101 or 102. Galileo, 201, 205, 206, 207, 208
-
+* freqtype, for GPS this is 1, 2, or 5. Glonass, 101 or 102. Galileo, 201, 205, 206, 207, 208.
 * snrtype is integer shorthand for the kinds of elevation angle data you want to save
 from the RINEX file. Here are the allowed options:
 
-**    99 5-30 elev.
-**   66 < 30 elev.
-**   88 5-90 elev.
-**   50 < 10 elev (useful for high-rate data at very tall sites)
+99 5-30 elev.
+66 < 30 elev.
+88 5-90 elev.
+50 < 10 elev (useful for high-rate data at very tall sites)
 
 * plot2screen - boolean for whether you want to see the raw data plots. You will set 
 this to false once you understand your site.
