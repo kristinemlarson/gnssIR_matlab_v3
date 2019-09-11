@@ -15,6 +15,12 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 % the code will compute results in 8 azimuth bins, 0-45, 45-90 and so on.
 % if you want that computation set, use one of the variable inputs below.
 
+% gps_or_gnss is 1 for gps and 2 for gnss.  These options are only for
+% translating the RINEX file.  If you already have a SNR file stored, this
+% input does not matter. 1 means you will use a nav file to compute the GPS
+% orbits.  If you pick 2, it will use a sp3 file. The latter can have 
+% multi-GNSS signals in it.
+
 % VARIABLE INPUTS
 % elevation angle minimum, degrees
 % elevation angle maximum, degrees
@@ -68,8 +74,8 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 % Using GPS Receivers, J. Glaciology, Vol. 61, No. 225, 
 % doi:10.3189/2015JoG14J130, 2015
 
-% september 2019
-% KL Added beidou, Galileo, and Glonass
+% September 2019
+% KL Added Beidou, Galileo, and Glonass
 
 %
 % set up environment variables

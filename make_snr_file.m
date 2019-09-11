@@ -23,7 +23,7 @@ reflcode=getenv('REFL_CODE');
 % can't get wget to show up when using bash (works fine with csh)
 wgetexe=getenv('WGET');
 
-sopac = 'ftp://garner.ucsd.edu';
+
 % output - assume they will be in your main directory for now
 snrfilename = [station cdoy '0.' cyy '.snr' num2str(snrc)];
 snrdirname = [reflcode '/' cyyyy '/snr/' station];
@@ -44,9 +44,9 @@ navfile = [navfiledir navname];
 finalsnr = [snrdirname '/' snrfilename];
 
 if ~exist(finalsnr)
-  disp('The SNR file does not exist. Will try to make it')
+  disp('The SNR file does not exist. I will try to make it')
   if exist(rinexfilename)
-    disp('found rinex')
+    disp('found the rinex in your home directory')
     disp(rinexfilename)
   else
     disp('will try to download rinex')
@@ -54,9 +54,9 @@ if ~exist(finalsnr)
   end
   if gps_or_gnss == 1
     if exist([navfiledir '/' navname])
-      disp('found the nav file')
+      disp('I found the GPS nav file')
     else
-      disp('will try to find the navfile')
+      disp('I will try to find the navfile')
       navexist = get_navfile(cyyyy,cdoy);
       if navexist
         unix(['mv ' navname ' ' navfiledir]);
@@ -66,7 +66,10 @@ if ~exist(finalsnr)
     filedir = [orbits '/' cyyyy '/sp3/'];
     file1 = [filedir 'GFZ0MGXRAP_'  cyyyy cdoy '0000_01D_05M_ORB.SP3'];
     if ~exist(file1)
+      disp('I will try to download the GNSS sp3 file')
       fexist = get_gnss_sp3( year,doy );
+    else
+       disp('I found the GNSS sp3 file')
     end
         
   end
@@ -86,13 +89,15 @@ if ~exist(finalsnr)
       % clean up after yourself and rm the rinex files (both kinds)
       unix(['rm -f ' rinexfilename]);
   else
-      disp('rinex file does not exist')
+      disp('The RINEX file does not exist')
   end
 end
 
 % return boolean to main code as to file existence.
-if exist(finalsnr)
-    nofile = false;
+if exist(finalsnr)  
+  nofile = false;
+else
+  disp('The SNR file does not exist')
 end
 
  
