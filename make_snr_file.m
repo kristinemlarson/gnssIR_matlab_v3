@@ -1,11 +1,9 @@
-function [finalsnr, LSPoutputfile, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss,fr);
-%function [finalsnr, LSPoutputfile, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss,fr);
+function [finalsnr, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
+%function [finalsnr, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
 % inputs:
 % year, day of year (doy), station name (4 char)
 % snr_choices allowed are 99, 66, 88, or 10
 % gps_or_gnss = 1 is GPS and 2 is GNSS
-% fr is frequency requested. currently only GPS. this is just for making 
-% the output file name, which is created here.
 %
 % author: kristine larson, 2019 Sep 6
 % assume it fails
@@ -31,12 +29,8 @@ snrfilename = [station cdoy '0.' cyy '.snr' num2str(snrc)];
 snrdirname = [reflcode '/' cyyyy '/snr/' station];
 
 
-% output filename
-ss = [station '_' cyy '_' cdoy '_L' num2str(fr) '.txt'];
-% output filename with directory
-LSPoutputfile = [reflcode '/' cyyyy '/results/' station '/' ss];
-
 % make directories for the outputs (SNR files and LSP files)
+% a bit redundant as also called from main code
 make_refl_directories(reflcode, cyyyy, station)
  
 % name of rinex and compressed rinex 

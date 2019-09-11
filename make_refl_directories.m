@@ -1,7 +1,8 @@
 function make_refl_directories(reflcode, cyyyy, station)
-% for a given station and year, make appropriate directories
+% for a given reflection code directory (reflcode), 
+% station and year (string), make appropriate directories
 % to store the SNR files and the SNR lomb scargle results
-
+% Kristine M. Larson, September 2019.
 
 if ~exist([reflcode '/' cyyyy])
     unix(['mkdir' reflcode '/' cyyyy])

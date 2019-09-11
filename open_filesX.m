@@ -28,13 +28,14 @@ end
 if exist(inputfile)
   x=load(inputfile);
   [nr,nc]= size(x);
+  fprintf(1,'Rows %2.0f Columns %2.0f \n', nr,nc);
   % L5 would be in column 9 if it existed
-  if nc ~= 9 & freqtype == 5
+  if nc < 9 & freqtype == 5
      disp('there are no S5 data in this file');
      nofile = true;
      return
   end
-  if freqtype == 5 & nc==9
+  if freqtype == 5 & nc>=9
       % additionally check that there are any non-zero S5 data
       i=find(x(:,9) ~= 0);
       if length(i) == 0
@@ -47,5 +48,9 @@ else
   disp('Your file did not exist');
   nofile = true;
   return
+end
+if nr == 0
+    nofile == true;
+    disp('Your file was empty')
 end
 

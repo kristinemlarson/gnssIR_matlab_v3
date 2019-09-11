@@ -1,4 +1,4 @@
-function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,varargin);
+function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gnss,varargin);
 %function gnssIR_lomb(station, year, doy,freqtype,plot2screen,varargin);
 % REQUIRED INPUTS:
 % station name.  must be 4 character
@@ -75,7 +75,12 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,varargin);
 % set up environment variables
 % IMPORTANT
 set_reflection_env_variables
-snrc = snrtype
+snrc = snrtype;
+% make directories for the outputs (SNR files and LSP files)
+cyyyy = sprintf('%04d', year );
+reflcode=getenv('REFL_CODE');
+make_refl_directories(reflcode, cyyyy, station)
+
 
 % defaults if the user dos not provide
 emin =5;
@@ -119,10 +124,17 @@ fprintf(1,'Req RH Amp: %6.1f \n', minAmp);
 if naz == 1
     fprintf(1,'Azim Range: %6.1f %6.1f \n', azim1, azim2);
 end
-
-satlist = 1:32; % use all GPS satellites
+if freqtype < 6
+  satlist = 1:32; % use all GPS satellites, f=5 is less than this list
+elseif freqtype == 20 % L2C satellites - 
+    % 4 is the most recent healthy GPS III
+  satlist=[1 3 4 5:10  12 15 17 24:29 30:32 ];
+elseif freqtype > 100 & freqtype < 200 % glonass
+  satlist=101:125;
+elseif freqtype > 200 & freqtype < 299 % galileo
+  satlist=201:250;
+end
 LW = 2 ; % linewidth for quadrant plots
-comL = '%';
 pvf = 3; % polynomial order used to remove the direct signal.
 % this can be smaller, especially for short elevation angle ranges.
 
@@ -132,15 +144,15 @@ avg_maxRH = [];
 
 % start with the default;
 %snrc = 99; % 5-30 degrees
-gps_or_gnss = 1; % 2 would be for multi-GNSS
+%gps_or_gnss = 1; % 2 would be for multi-GNSS
 % makes file for you if you don't have it online
-[snrfile, outputfile, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss,freqtype);
+[snrfile, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
  
 if nofile
   disp('SNR file does not exist')
  return
 end
-  
+outputfile = LSP_outputfile(reflcode,station,year,doy,freqtype);  
 fprintf(1,'LSP Output will go to : %s \n', outputfile);
  
 % load the SNR data into variable x, open output file for LSP results
@@ -160,20 +172,10 @@ minPoints = 25; %it is totally arbitrary for now.
 ediff = 2 ; % QC value - different than version 1 
  
 desiredPrecision = 0.01; % 1 cm is a reasonable level for now. 
-%frange = [0 6]; % noise range is calculated between 0 and 5 meters.
+% noise range is calculated between these values.  Currently set to
+% RH range - but could be different.
 frange = [minRH maxRH]; % this could be input.
    
-  
-
-% get additional QC levels and print them to the screen
-%[minAmp,pknoiseCrit,frange ] = quicky_QC(freqtype, maxHeight, ...
-%    desiredPrecision, ediff,frange);
-
-
-% get wavelength factor (lambda/2) and column where data are stored (ic)
-[cf,ic] = get_waveL(freqtype);
-% get_gnss_freq_scales(frq) has cf - but not the column
-
 % make header for the output txt file
 output_header(fid);
 
@@ -188,13 +190,15 @@ for a=1:naz
   end
   % window by satellite
   for sat = satlist
+    fprintf(1,'Satellite %3.0f Azimuths %3.0f %3.0f\n', sat, azim1, azim2)
     i=find(x(:,2) < emax & x(:,2) > emin & x(:,1) == sat & ...
        x(:,3) > azim1 & x(:,3) < azim2);
-   % in some cases you have both ascending and descending arcs
-   % in one azimuth bin that will fulfill this find statement, 
-   % but for cryosphere applications, it won't hurt you much 
     
-   if length(i) > minPoints
+    % get wavelength factor and column number for SNR data  
+   [cf,ic] = get_gnss_freq_scales_v3(freqtype,sat);
+   [nr,nc]=size(x);
+   % make sure there are enough columns for the frequency you requested
+   if length(i) > minPoints & ic <= nc
      w= x(i,:);
      elevAngles = w(:,2); % elevation angles in degrees
      % change SNR data from dB-Hz to linear units
@@ -254,13 +258,3 @@ end % azimuth loop
 fclose(fid); fclose(fid_reject);
 
 
-% old code
-%if plot2screen & plt_type == 0
-%  plot_labels( plt_type, station, [0 360], freqtype);
-%end
-
-
-% if you are making one summary plot, figure out the average RH
-% and plot it as a magenta vertical line.
-%median_RH( plt_type, avg_maxRH, plot2screen )
-%average_RH( plt_type, avg_maxRH, plot2screen )
