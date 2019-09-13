@@ -1,4 +1,6 @@
-%running multiple days for a station
+% sample code for running multiple days for a station
+% author: kristine m. larson
+% september 13, 2019
 
 % required inputs
 station = 'p038';

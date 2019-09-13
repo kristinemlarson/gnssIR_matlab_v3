@@ -11,7 +11,7 @@ function [sc_fac,ic] = get_gnss_freq_scales_v3(frq,sat)
 % 101-199 is for Glonass
 % 201-299 is for Galileo
 % 301-399 is for Beidou
-% author: kristine m. larson
+
 
 % frequencies are 1,2,5 for GPS, 101,102 for Glonass, etc
 %
@@ -19,6 +19,8 @@ function [sc_fac,ic] = get_gnss_freq_scales_v3(frq,sat)
 %  
 % this should be changed so that all the frequencies are returned in an
 % array, as is done in the python code.
+
+% author: kristine m. larson
 
 c= 299792458 ; % speed of light m/sec
 maxGPS = 32;

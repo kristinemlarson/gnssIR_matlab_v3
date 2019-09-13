@@ -2,10 +2,16 @@ function [finalsnr, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
 %function [finalsnr, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
 % inputs:
 % year, day of year (doy), station name (4 char)
-% snr_choices allowed are 99, 66, 88, or 10
+%
+% snr_choices (snrc) allowed are 99, 66, 88, or 50
+% 
 % gps_or_gnss = 1 is GPS and 2 is GNSS
 %
-% author: kristine larson, 2019 Sep 6
+% outputs:
+% name of the SNR file and whether it exists
+%
+% author: kristine larson, September 6, 2019  
+
 % assume it fails
 nofile = true;
 % compute character versions of year and day of year. useful for file names
@@ -14,7 +20,7 @@ cyyyy = sprintf('%04d', year );
 cyy = sprintf('%02d', year-2000 );
 
 
-% this will allow access to gpsSNR.e and gnssSNR.e
+% this will allow access to gpsSNR.e and gnssSNR.e RINEX translators
 exe=getenv('EXE');
 % store the orbits for future use
 orbits=getenv('ORBITS');
@@ -37,7 +43,7 @@ make_refl_directories(reflcode, cyyyy, station)
 rinexfilename = [station cdoy '0.' cyy 'o'];
 cmprinexfilename = [station cdoy '0.' cyy 'd'];
 
-% where the orbits shall live
+% where the orbit files will live
 navfiledir = [orbits '/' cyyyy '/nav/'];
 navname = ['auto' cdoy '0.' cyy 'n'];
 navfile = [navfiledir navname];

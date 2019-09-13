@@ -42,6 +42,8 @@ in the EXE directory.
 Change this function to set your environment variables: set_reflection_env_variables.m
 
 The main function call is gnssIR_lomb.m  It has both required and optional inputs.
+The function run_mulitple_days.m gives you an idea of how it could be called and used in a loop (i.e. through multiple
+days and years).
 
 Required:
 * station name (4 characters, lowercase)
@@ -74,3 +76,6 @@ Optional inputs (in this order):
 * minimum allowed Lomb Scargle Periodogram amplitude. 
 
 Don't ask me where version 2 went - that is a secret.
+
+Kristine M. Larson
+https://kristinelarson.net
