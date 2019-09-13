@@ -1,6 +1,7 @@
- function simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p, LW);
+ function simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p);
  % freq units on x-axis will be reflector heights (meters) 
      % amplitude units on y-axis will be volts/volts
+ LW = 2 ; % linewidth for quadrant plots
  if plot2screen
    if plt_type == 1 
      subplot(2,1,1) % raw SNR data

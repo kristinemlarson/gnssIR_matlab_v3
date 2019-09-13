@@ -4,9 +4,11 @@ GPS Solutions and the GPS Tool Box. It is also hosted on my gitHub account.
 Version 3 is my attempt to make code available that is better oriented towards
 routine analysis and more similar to the python code.
 
-There is no refraction error as yet. Nor is the RH dot correction done.
+There is no refraction correction in the code as yet. Nor is the RH dot correction done.
 
 WARNING: These codes do not calculate soil moisture.
+
+I am still working on this documentation
 
 # Installing the code
 
@@ -30,7 +32,7 @@ I do have static executable files. The one you need should be renamed as gpsSNR.
 and stored in EXE.
 
 
-* CRX2RNX, Compressed to Uncompressed RINEX, http://terras.gsi.go.jp/ja/crx2rnx.html This must be stored 
+* CRX2RNX, Compressed to Uncompressed RINEX, which you can find at http://terras.gsi.go.jp/ja/crx2rnx.html This must be stored 
 in the EXE directory.
 
 
@@ -42,7 +44,6 @@ Required:
 * station name (4 characters, lowercase)
 * year 
 * day of year
-
 * freqtype, for GPS this is 1, 2, or 5. Glonass, 101 or 102. Galileo, 201, 205, 206, 207, 208.
 * snrtype is integer shorthand for the kinds of elevation angle data you want to save
 from the RINEX file. Here are the allowed options:
@@ -50,7 +51,7 @@ from the RINEX file. Here are the allowed options:
 99 5-30 elev.
 66 < 30 elev.
 88 5-90 elev.
-50 < 10 elev (useful for high-rate data at very tall sites)
+50 < 10 elev.
 
 * plot2screen - boolean for whether you want to see the raw data plots. You will set 
 this to false once you understand your site.

@@ -11,4 +11,6 @@ cyy = cyyyy(3:4);
 ss = [station '_' cyy '_' cdoy '_L' num2str(fr) '.txt'];
 % output filename with directory
 outfile = [reflcode '/' cyyyy '/results/' station '/' ss];
+
+fprintf(1,'LSP Output will go to : %s \n', outfile);
 end

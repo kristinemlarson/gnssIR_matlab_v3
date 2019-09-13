@@ -95,6 +95,8 @@ maxRH = 6;
 minRH = 0.5;
 minAmp = 7;
 pknoiseCrit = 2.7;
+emaxpoly = 30;
+eminpoly = 5;
 
 % these are the defaults checking azimuths in 45 degree bins
 % user can also limit it using varagin
@@ -133,15 +135,18 @@ end
 if freqtype < 6
   satlist = 1:32; % use all GPS satellites, f=5 is less than this list
 elseif freqtype == 20 % L2C satellites - 
-    % 4 is the most recent healthy GPS III
-  satlist=[1 3 4 5:10  12 15 17 24:29 30:32 ];
+    % 4 is the most first GPS III, but it has not been set healthy, so
+    % it is not listed here.
+  satlist=[1 3 5:10  12 15 17 24:29 30:32 ];
 elseif freqtype > 100 & freqtype < 200 % glonass
-  satlist=101:125;
+  satlist=101:124; % i think there are only 24 legal glonass satellites
 elseif freqtype > 200 & freqtype < 299 % galileo
   satlist=201:250;
+elseif freqtype > 300 & freqtype < 399 % beidou
+  satlist=301:350;  
 end
-LW = 2 ; % linewidth for quadrant plots
 pvf = 3; % polynomial order used to remove the direct signal.
+% should be 4 to be consistent with python.
 % this can be smaller, especially for short elevation angle ranges.
 
 % the avg_maxRH variable will store  a crude median reflector height 
@@ -155,7 +160,7 @@ avg_maxRH = [];
 [snrfile, nofile] = make_snr_file(year,doy,station,snrc,gps_or_gnss);
  
 if nofile
-  disp('SNR file does not exist')
+  disp('SNR file does not exist. Exiting')
  return
 end
 outputfile = LSP_outputfile(reflcode,station,year,doy,freqtype);  
@@ -199,13 +204,16 @@ for a=1:naz
     fprintf(1,'Satellite %3.0f Azimuths %3.0f %3.0f\n', sat, azim1, azim2)
     i=find(x(:,2) < emax & x(:,2) > emin & x(:,1) == sat & ...
        x(:,3) > azim1 & x(:,3) < azim2);
-    
+   % for the polyfit you use a larger range.
+    k=find(x(:,2) < emaxpoly & x(:,2) > eminpoly & x(:,1) == sat & ...
+       x(:,3) > azim1 & x(:,3) < azim2);
     % get wavelength factor and column number for SNR data  
    [cf,ic] = get_gnss_freq_scales_v3(freqtype,sat);
    [nr,nc]=size(x);
    % make sure there are enough columns for the frequency you requested
    if length(i) > minPoints & ic <= nc
      w= x(i,:);
+     wpoly = x(k,:);
      elevAngles = w(:,2); % elevation angles in degrees
      % change SNR data from dB-Hz to linear units
      data = 10.^(w(:,ic)/20);
@@ -218,8 +226,14 @@ for a=1:naz
      azm = mean(w(:,3));    
      % remove direct signal. polyfit value does not need to 
      % be as large as this for some arcs.
-     p=polyfit(elevAngles, data,pvf);  
-     pv = polyval(p, elevAngles);
+     elevAnglesPoly = wpoly(:,2);
+     dataPoly = 10.^(wpoly(:,ic)/20);      
+     p=polyfit(elevAnglesPoly, dataPoly,pvf);
+     %
+     %p=polyfit(elevAngles, data,pvf);  
+     %pv = polyval(p, elevAngles);
+     % use the polyfit estimate and apply to restricted elevAngles
+     pv = polyval(p,elevAngles);
 % sine(elevation angles)
      sineE = sind(elevAngles);
      saveSNR = data-pv; %remove the direct signal with a polynomial
@@ -245,7 +259,7 @@ for a=1:naz
       fprintf(fid,'%4.0f %3.0f %7.3f %6.2f %6.1f %6.0f %3.0f %6.2f %6.2f %6.2f %4.0f %7.3f\n', ...
         year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
           maxObsE, pknoise,freqtype,meanUTC);
-      simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p, LW);
+      simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p);
       % save the values if needed for the summary plot
       avg_maxRH = [avg_maxRH; RHestimated];
      
