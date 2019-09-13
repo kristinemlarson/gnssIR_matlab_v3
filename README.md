@@ -1,6 +1,8 @@
 # gnssIR_matlab_v3
 This code is basd on a previous matlab library that was published in
-GPS Solutions and the GPS Tool Box. It is also hosted on my gitHub account.
+GPS Solutions (https://link.springer.com/article/10.1007/s10291-018-0744-8) and the GPS Tool Box 
+(https://www.ngs.noaa.gov/gps-toolbox/GNSS-IR.htm)
+It is also hosted on this gitHub account.
 Version 3 is my attempt to make code available that is better oriented towards
 routine analysis and more similar to the python code.
 
@@ -28,15 +30,16 @@ to define the wget executable and store that as environment variable WGET
 Executables 
 
 * My RINEX translators are on this gitHub acccount, bu if you are using Linux on a PC or MacOS,
-I do have static executable files. The one you need should be renamed as gpsSNR.e and gnssSNR.e
+I will be posting static executable files as soon as I get a chance. The one you need should be renamed as gpsSNR.e and gnssSNR.e
 and stored in EXE.
-
 
 * CRX2RNX, Compressed to Uncompressed RINEX, which you can find at http://terras.gsi.go.jp/ja/crx2rnx.html This must be stored 
 in the EXE directory.
 
 
 # Running the Code
+
+Change this function to set your environment variables: set_reflection_env_variables.m
 
 The main function call is gnssIR_lomb.m  It has both required and optional inputs.
 
