@@ -16,6 +16,7 @@ freq = 1; % frequency
 % 50 is elev < 10, for tall sites, which requires high-rate RINEX
 snrtype = 99; % 
 plot2screen = true;
+plot2screen = false;
 % 1 is for GPS only, 2 for GNSS. Just changes the orbit type used in
 % computing the orbits used when translating the contents of the RINEX 
 % file.  You can use GNSS for a GPS only file/station

@@ -9,7 +9,7 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 %    99 5-30 elev.
 %    66 < 30 elev.
 %    88 5-90 elev.
-%    50 < 10 elev (useful for very tall sites)
+%    50 < 10 elev (useful for very tall sites where you are using 1 Hz data)
 
 % plot2screen - boolean for whether you want to see the raw data plots
 % the code will compute results in 8 azimuth bins, 0-45, 45-90 and so on.
@@ -95,13 +95,15 @@ make_refl_directories(reflcode, cyyyy, station)
 % assume you want to make the refraction correction
 refraction = true;
 %refraction = false;
+% DO NOT MIX RESULTS WHERE refraction WAS and WAS NOT applied.
 
-% defaults if the user dos not provide
+%defaults if the user does not provide
 emin =5;
 emax =25;
 maxRH = 6;
 minRH = 0.5;
 minAmp = 7;
+% these are currently not inputs
 pknoiseCrit = 2.7;
 emaxpoly = 30;
 eminpoly = 5;
@@ -111,27 +113,23 @@ lat = 0;
 lon = 0;
 hell = 0;
 
-% these are the defaults checking azimuths in 45 degree bins
+%these are the defaults checking azimuths in 45 degree bins
 % user can also limit it using varagin
 azrange = 45; %  
 naz = round(360/azrange);
 
- 
-% if you want to vary some of these parameters:
+
+%  define varargin inputs
 if length(varargin)>0  
-  emin = varargin{1};
-  emax = varargin{2};
+  emin = varargin{1}; emax = varargin{2};
 end
   
 if length(varargin)>2
-  minRH = varargin{3};
-  maxRH= varargin{4};
+  minRH = varargin{3}; maxRH= varargin{4};
 end
 
 if length(varargin)>4
-  lat = varargin{5};
-  lon = varargin{6};
-  hell = varargin{7};
+  lat = varargin{5}; lon = varargin{6}; hell = varargin{7};
 end
 
 if length(varargin)>7
@@ -139,17 +137,13 @@ if length(varargin)>7
 end
 
 if length(varargin)>8
-  naz = 1; % only one azimuth range
-  azim1 = varargin{9};
-  azim2 = varargin{10};
+  naz = 1; azim1 = varargin{9}; azim2 = varargin{10};
 end
 
 
-if refraction
-  
 % only call this once at the top of your Lomb Scargle code.
- % this makes the grid for the station.  only needs to be done once 
- % moved to the reflcode input area
+ % this makes the grid for the station.  
+if refraction  
    if exist([reflcode '/input/gpt2_1wA_' station '.txt'])
       disp('refraction file already exists')
       [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
@@ -166,21 +160,21 @@ if refraction
 end
 
 
-fprintf(1,'Using emin: %6.1f \n', emin)
+fprintf(1,'Summary of inputs: %s \nUsing emin: %6.1f \n', station, emin)
 fprintf(1,'Using emax: %6.1f \n', emax)
 fprintf(1,'Min RH (m): %6.1f \n', minRH );
 fprintf(1,'Max RH (m): %6.1f \n', maxRH );
 fprintf(1,'Req RH Amp: %6.1f \n', minAmp);
 if refraction 
   fprintf(1,'Simple refraction correction applied \n');
-  RefIndex = 1;
+  RefIndex = 1; % for LSP output file
 else
   fprintf(1,'Refraction correction is not applied \n');
-  RefIndex = 0;
+  RefIndex = 0; % for LSP output file
 end
 
 if naz == 1
-    fprintf(1,'Azim Range: %6.1f %6.1f \n', azim1, azim2);
+    fprintf(1,'Restricted Azimuth Range: %6.1f %6.1f \n', azim1, azim2);
 end
 
 satlist = get_satlist(freqtype);
