@@ -89,8 +89,9 @@ snrc = snrtype;
 % make directories for the outputs (SNR files and LSP files)
 cyyyy = sprintf('%04d', year );
 reflcode=getenv('REFL_CODE');
+
 make_refl_directories(reflcode, cyyyy, station)
-addpath Refraction-FirstWay
+
 % assume you want to make the refraction correction
 refraction = true;
 %refraction = false;
@@ -148,7 +149,8 @@ if refraction
   
 % only call this once at the top of your Lomb Scargle code.
  % this makes the grid for the station.  only needs to be done once 
-   if exist(['gpt2_1wA_' station '.txt'])
+ % moved to the reflcode input area
+   if exist([reflcode '/input/gpt2_1wA_' station '.txt'])
       disp('refraction file already exists')
       [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
    else

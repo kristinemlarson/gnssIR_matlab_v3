@@ -199,9 +199,10 @@ end
 
 % read gridfile
 % KL change to have no directory structure
-outdir = '';
-% outdir = [ getenv('PRODUCTS') '/' station '/eo/'];
- gridfile = [outdir 'gpt2_1wA_' station '.txt'];
+%outdir = '';
+% 19sep26 KL added directory structure
+outdir = [ getenv('REFL_CODE') '/input/'];
+gridfile = [outdir 'gpt2_1wA_' station '.txt'];
  
 if ~exist( gridfile) 
  disp([ ' ... try to create  ' gridfile ]) 

@@ -4,6 +4,11 @@ function make_refl_directories(reflcode, cyyyy, station)
 % to store the SNR files and the SNR lomb scargle results
 % 
 % Kristine M. Larson, September 2019.
+% added input directory
+
+if ~exist([reflcode '/input'])
+    unix(['mkdir' reflcode '/input'])
+end
 
 if ~exist([reflcode '/' cyyyy])
     unix(['mkdir' reflcode '/' cyyyy])
