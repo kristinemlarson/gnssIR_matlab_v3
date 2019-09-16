@@ -26,10 +26,14 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 % elevation angle maximum, degrees
 % min RH (m)
 % max RH (m)
+% latitude (deg)
+% longitude (deg)
+% ellipsoidal height (m)
+% minimum allowed lomb scargle amplitude. this depends on frequency
 % min azimuth, degrees
 % max azimuth, degrees
-% minimum allowed lomb scargle amplitude. this depends on frequency
-% and whether L2P or L2C.  
+
+%  
 % 
 % The main outputs of this code are REFLECTOR 
 % HEIGHTS, or RH, in meters. RH is the vertical distance between the GPS
@@ -86,7 +90,10 @@ snrc = snrtype;
 cyyyy = sprintf('%04d', year );
 reflcode=getenv('REFL_CODE');
 make_refl_directories(reflcode, cyyyy, station)
-
+addpath Refraction-FirstWay
+% assume you want to make the refraction correction
+refraction = true;
+%refraction = false;
 
 % defaults if the user dos not provide
 emin =5;
@@ -97,6 +104,11 @@ minAmp = 7;
 pknoiseCrit = 2.7;
 emaxpoly = 30;
 eminpoly = 5;
+% set these to zero in case someone tries to use refraction correction
+% but forgets to submit location for the site
+lat = 0;
+lon = 0;
+hell = 0;
 
 % these are the defaults checking azimuths in 45 degree bins
 % user can also limit it using varagin
@@ -116,40 +128,66 @@ if length(varargin)>2
 end
 
 if length(varargin)>4
-  naz = 1; % only one azimuth range
-  azim1 = varargin{5};
-  azim2 = varargin{6};
+  lat = varargin{5};
+  lon = varargin{6};
+  hell = varargin{7};
 end
 
-if length(varargin)>6
-  minAmp = varargin{7};
+if length(varargin)>7
+  minAmp = varargin{8};
 end
+
+if length(varargin)>8
+  naz = 1; % only one azimuth range
+  azim1 = varargin{9};
+  azim2 = varargin{10};
+end
+
+
+if refraction
+  
+% only call this once at the top of your Lomb Scargle code.
+ % this makes the grid for the station.  only needs to be done once 
+   if exist(['gpt2_1wA_' station '.txt'])
+      disp('refraction file already exists')
+      [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
+   else
+     disp('will attempt to make refraction file for this site')
+     if lat == 0 && lon == 0
+       disp('no coordinates were provided, so you cannot use the refraction correction')
+       refraction = false;
+     else
+       gpt2_1w_grid_1site(station, lat, lon);
+       [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
+     end
+   end
+end
+
+
 fprintf(1,'Using emin: %6.1f \n', emin)
 fprintf(1,'Using emax: %6.1f \n', emax)
 fprintf(1,'Min RH (m): %6.1f \n', minRH );
 fprintf(1,'Max RH (m): %6.1f \n', maxRH );
 fprintf(1,'Req RH Amp: %6.1f \n', minAmp);
+if refraction 
+  fprintf(1,'Simple refraction correction applied \n');
+  RefIndex = 1;
+else
+  fprintf(1,'Refraction correction is not applied \n');
+  RefIndex = 0;
+end
+
 if naz == 1
     fprintf(1,'Azim Range: %6.1f %6.1f \n', azim1, azim2);
 end
-if freqtype < 6
-  satlist = 1:32; % use all GPS satellites, f=5 is less than this list
-elseif freqtype == 20 % L2C satellites - 
-    % 4 is the most first GPS III, but it has not been set healthy, so
-    % it is not listed here.
-  satlist=[1 3 5:10  12 15 17 24:29 30:32 ];
-elseif freqtype > 100 & freqtype < 200 % glonass
-  satlist=101:124; % i think there are only 24 legal glonass satellites
-elseif freqtype > 200 & freqtype < 299 % galileo
-  satlist=201:250;
-elseif freqtype > 300 & freqtype < 399 % beidou
-  satlist=301:350;  
-end
+
+satlist = get_satlist(freqtype);
+
 pvf = 3; % polynomial order used to remove the direct signal.
 % should be 4 to be consistent with python.
 % this can be smaller, especially for short elevation angle ranges.
 
-% the avg_maxRH variable will store  a crude median reflector height 
+% the avg_maxRH variable will store  a crude average reflector height 
 % for a single day/site
 avg_maxRH = [];
 
@@ -164,7 +202,6 @@ if nofile
  return
 end
 outputfile = LSP_outputfile(reflcode,station,year,doy,freqtype);  
-fprintf(1,'LSP Output will go to : %s \n', outputfile);
  
 % load the SNR data into variable x, open output file for LSP results
 % nofile is a boolean that knows whether data have been found
@@ -201,7 +238,7 @@ for a=1:naz
   end
   % window by satellite
   for sat = satlist
-    fprintf(1,'Satellite %3.0f Azimuths %3.0f %3.0f\n', sat, azim1, azim2)
+   % fprintf(1,'Satellite %3.0f Azimuths %3.0f %3.0f\n', sat, azim1, azim2)
     i=find(x(:,2) < emax & x(:,2) > emin & x(:,1) == sat & ...
        x(:,3) > azim1 & x(:,3) < azim2);
    % for the polyfit you use a larger range.
@@ -215,6 +252,11 @@ for a=1:naz
      w= x(i,:);
      wpoly = x(k,:);
      elevAngles = w(:,2); % elevation angles in degrees
+     if refraction
+         %changing elevation angles
+         [corr_el_deg] = correct_e_angles(elevAngles,Pressure,Temperature);
+         elevAngles = corr_el_deg;
+     end
      % change SNR data from dB-Hz to linear units
      data = 10.^(w(:,ic)/20);
 %    these are UTC hours
@@ -256,9 +298,16 @@ for a=1:naz
     minObsE = min(elevAngles);   
     if maxRHAmp > minAmp  & dt < maxArcTime & ...
          pknoise > pknoiseCrit & maxObsE > (emax-ediff) & minObsE < (emin+ediff) 
-      fprintf(fid,'%4.0f %3.0f %7.3f %6.2f %6.1f %6.0f %3.0f %6.2f %6.2f %6.2f %4.0f %7.3f\n', ...
-        year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
-          maxObsE, pknoise,freqtype,meanUTC);
+     % changed order of output to be more consistent with python code
+     % fprintf(fid,'%4.0f %3.0f %7.3f %6.2f %6.1f %6.0f %3.0f %6.2f %6.2f %6.2f %4.0f %7.3f\n', ...
+      %  year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
+       %   maxObsE, pknoise,freqtype,meanUTC);
+      riseSet = 0;      EdotF = 0;  
+      dmjd = get_mjd(year,doy,meanUTC);
+      fprintf(fid,'%4.0f %3.0f %7.3f %3.0f %6.3f %6.1f %5.1f %5.2f %5.2f %6.0f %3.0f %2.0f %2.0f %7.2f %5.2f %13.6f %1.0f\n', ...
+        year,doy,RHestimated,sat, meanUTC, azm, maxRHAmp, minObsE, maxObsE,  ...
+        length(data),freqtype, riseSet, EdotF, pknoise,dt*60,dmjd,RefIndex);
+    
       simple_plots(plot2screen, plt_type, sineE, saveSNR,f,p);
       % save the values if needed for the summary plot
       avg_maxRH = [avg_maxRH; RHestimated];
