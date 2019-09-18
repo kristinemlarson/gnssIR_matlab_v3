@@ -5,7 +5,7 @@
 % required inputs
 clear all
 station = 'p032';
-year = 2019;
+year = 2010;
 % doy is in the loop
 freq = 1; % frequency
 % snrtype is for RINEX translation - basically the number tells you
