@@ -8,7 +8,9 @@ cyyyy = sprintf('%04d', year );
 cdoy = sprintf('%04d', doy );
 cyy = cyyyy(3:4);
 % output filename
-ss = [station '_' cyy '_' cdoy '_L' num2str(fr) '.txt'];
+% changed this to be more compatible with python code. only difference
+% is that frequency is in the file name
+ss = [ cdoy '_L' num2str(fr) '.txt'];
 % output filename with directory
 outfile = [reflcode '/' cyyyy '/results/' station '/' ss];
 
