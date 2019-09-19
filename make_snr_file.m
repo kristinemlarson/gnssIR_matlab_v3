@@ -47,6 +47,7 @@ cmprinexfilename = [station cdoy '0.' cyy 'd'];
 navfiledir = [orbits '/' cyyyy '/nav/'];
 navname = ['auto' cdoy '0.' cyy 'n'];
 navfile = [navfiledir navname];
+
 finalsnr = [snrdirname '/' snrfilename];
 
 if ~exist(finalsnr)
@@ -58,32 +59,43 @@ if ~exist(finalsnr)
     disp('will try to download rinex')
     get_rinex(rinexfilename)
   end
-  if gps_or_gnss == 1
-    if exist([navfiledir '/' navname])
-      disp('I found the GPS nav file')
-    else
-      disp('I will try to find the navfile')
-      navexist = get_navfile(cyyyy,cdoy);
-      if navexist
-        unix(['mv ' navname ' ' navfiledir]);
+  if exist(rinexfilename)
+    if gps_or_gnss == 1
+      if exist([navfiledir '/' navname])
+        disp('I found the GPS nav file')
+      else
+        disp('I will try to find the navfile')
+        navexist = get_navfile(cyyyy,cdoy);
+        if navexist
+          unix(['mv ' navname ' ' navfiledir]);
+        end
       end
+    else
+      sp3filedir = [orbits '/' cyyyy '/sp3/'];
+      [fileNew,fileOld] = igsname(year,doy,'gbm');
+    
+      if exist([sp3filedir  fileNew])         
+        sp3file = [sp3filedir fileNew];
+      elseif exist([sp3filedir fileOld])     
+        sp3file = [sp3filedir fileOld];
+      else
+        disp('I will try to download the GNSS sp3 file')
+       
+        [file1, fexist] = get_gnss_sp3( year,doy );
+        sp3file = [sp3filedir file1];
+      end
+   
+    
     end
   else
-    filedir = [orbits '/' cyyyy '/sp3/'];
-    file1 = [filedir 'GFZ0MGXRAP_'  cyyyy cdoy '0000_01D_05M_ORB.SP3'];
-    if ~exist(file1)
-      disp('I will try to download the GNSS sp3 file')
-      fexist = get_gnss_sp3( year,doy );
-    else
-       disp('I found the GNSS sp3 file')
-    end
-        
+    disp('no RINEX, so do not try to get orbits')
   end
   
+ 
   if exist(rinexfilename)
       if gps_or_gnss == 2
-        if exist(file1)  
-          dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' file1 ' ' num2str(snrc) ];
+        if exist(sp3file)  
+          dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' sp3file ' ' num2str(snrc) ];
           unix(dd);
         end
       else

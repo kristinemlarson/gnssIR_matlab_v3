@@ -94,7 +94,8 @@ make_refl_directories(reflcode, cyyyy, station)
 
 % assume you want to make the refraction correction
 refraction = true;
-%refraction = false;
+% don't turn it on until MJD is fixed
+refraction = false;
 % DO NOT MIX RESULTS WHERE refraction WAS and WAS NOT applied.
 
 %defaults if the user does not provide
@@ -298,8 +299,9 @@ for a=1:naz
      % fprintf(fid,'%4.0f %3.0f %7.3f %6.2f %6.1f %6.0f %3.0f %6.2f %6.2f %6.2f %4.0f %7.3f\n', ...
       %  year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
        %   maxObsE, pknoise,freqtype,meanUTC);
-      riseSet = 0;      EdotF = 0;  
-      dmjd = get_mjd(year,doy,meanUTC);
+      riseSet = 0;      EdotF = 0; 
+      dmjd = 0;
+      %dmjd = get_mjd(year,doy,meanUTC);
       fprintf(fid,'%4.0f %3.0f %7.3f %3.0f   %6.3f   %6.1f %5.1f   %5.2f   %5.2f %6.0f  %3.0f   %2.0f   %2.0f %7.2f   %5.2f  %13.6f %1.0f\n', ...
         year,doy,RHestimated,sat, meanUTC, azm, maxRHAmp, minObsE, maxObsE,  ...
         length(data),freqtype, riseSet, EdotF, pknoise,dt*60,dmjd,RefIndex);

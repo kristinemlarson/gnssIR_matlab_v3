@@ -2,10 +2,13 @@ function get_rinex(rinexfilename)
 % inputs  rinex filename
 % this function will look for your rinex files at SOPAC and UNAVCO.
 % low rate only.
+% author: kristine larson
+% date: September 16, 2019
+% searches only SOPAC and UNAVCO
 sopac = 'ftp://garner.ucsd.edu/pub/rinex/';
 unavco = 'ftp://data-out.unavco.org/pub/rinex/obs/';
 
-% compression code is stored here
+% Hatanaka compression code is stored here
 exe=getenv('EXE');
 % can't get wget to show up when using bash (works fine with csh)
 wgetexe=getenv('WGET');
@@ -15,6 +18,7 @@ cyyyy = ['20' rinexfilename(10:11)];
 cdoy = rinexfilename(5:7);
 
 try
+  disp('look first at SOPAC')
   url = [sopac cyyyy  '/' cdoy '/' cmprinexfilename '.Z'];
   unix([wgetexe ' ' url]);
   if exist([cmprinexfilename '.Z'])
@@ -30,7 +34,7 @@ end
 if exist(rinexfilename)
     disp('success')
 else
-    disp('try at unavco')
+    disp('try to find it at unavco')
     try
       url = [unavco  cyyyy  '/' cdoy '/' cmprinexfilename '.Z'];
       unix([wgetexe ' ' url]);
