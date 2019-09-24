@@ -29,7 +29,6 @@ reflcode=getenv('REFL_CODE');
 % can't get wget to show up when using bash (works fine with csh)
 wgetexe=getenv('WGET');
 
-
 % output - assume they will be in your main directory for now
 snrfilename = [station cdoy '0.' cyy '.snr' num2str(snrc)];
 snrdirname = [reflcode '/' cyyyy '/snr/' station];

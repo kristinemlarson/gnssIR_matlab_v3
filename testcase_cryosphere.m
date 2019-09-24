@@ -4,7 +4,7 @@
 
 % required inputs
 clear all
-station = 'phnx';
+station = 'lorg';
 year = 2019;
 % doy is in the loop
 freq = 1; % frequency 
@@ -15,7 +15,7 @@ freq = 1; % frequency
 % 88 all elev data
 % 50 is elev < 10, for tall sites, which requires high-rate RINEX
 snrtype = 99; % 
-plot2screen = true;
+plot2screen = false;
 %
 % 1 is for GPS only, 2 for GNSS. Just changes the orbit type used in
 % computing the orbits used when translating the contents of the RINEX 
@@ -40,8 +40,13 @@ lat = -77.94760400 ; lon= 166.75690300; hell= -39.9;
 %azim2 = 90; 
 %minAmp = 8;
 
-for doy=1
-  gnssIR_lomb(station, year, doy,freq,snrtype,plot2screen,...
+% this should capture a snow storm that occurred end of may
+% this site should have f=5, but they are not in the RINEX files ...
+
+for doy=135:166
+    for freq=[1 2]
+      gnssIR_lomb(station, year, doy,freq,snrtype,plot2screen,...
       gps_or_gnss, emin,emax,h1,h2,lat,lon,hell);
+    end
    
 end

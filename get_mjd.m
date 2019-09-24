@@ -23,5 +23,9 @@ minutes = floor(60*(meanUTC - hh));
 seconds = round(60*(minutesD - minutes));
 
 %modified julian date, mostly for tide people
-dmjd = mjuliandate(year,mm,dd, hh, minutes, seconds); 
+%this is in the aerospace toolbox, thus not accessible
+%replacing with something i found online.
+%dmjd = mjuliandate(year,mm,dd, hh, minutes, seconds); 
+dmjd = my_mjd(year,mm,dd, hh, minutes, seconds); 
+
 end

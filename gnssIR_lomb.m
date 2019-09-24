@@ -58,10 +58,8 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 % noise, but this is just to get you started.  This assumes you have picked
 % a relevant interval to calculate the noise over. You can change it below.
 % 
-% I strongly encourage you to look at your SNR data before
-% you start automating things. This code allows you to do that.
-
-% This is based on the original codes distributed by 
+%
+% This version is based on the original codes distributed by 
 % Carolyn J. Roesler and Kristine M. Larson for the GPS Tool Box.
 % These newer codes provide more direct access to the 
 % RINEX files. 
@@ -80,22 +78,36 @@ function gnssIR_lomb(station, year, doy,freqtype,snrtype, plot2screen,gps_or_gns
 
 % September 2019
 % KL Added Beidou, Galileo, and Glonass
+% September 20, 2019
+%
+% fixed bug in LSP output file name.
+% added both old and new names for the GFZ multi-GNSS sp3 files
+% fixed bug in making directories names.
+% fixed MJD bugs (and reliance on aerospace toolbox)
+% check for environment variable existence.  test refraction
 
 %
 % set up environment variables
-% IMPORTANT
-set_reflection_env_variables
+% IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+exitS = set_reflection_env_variables;
+if exitS
+    return
+end
+
 snrc = snrtype;
+exitS = check_inputs(station, year, doy,freqtype,snrtype);
+if exitS
+    return
+end
 % make directories for the outputs (SNR files and LSP files)
 cyyyy = sprintf('%04d', year );
 reflcode=getenv('REFL_CODE');
-
 make_refl_directories(reflcode, cyyyy, station)
 
 % assume you want to make the refraction correction
-refraction = true;
-% don't turn it on until MJD is fixed
 refraction = false;
+ 
+% refraction = false;
 % DO NOT MIX RESULTS WHERE refraction WAS and WAS NOT applied.
 
 %defaults if the user does not provide
@@ -107,12 +119,7 @@ minAmp = 7;
 % these are currently not inputs
 pknoiseCrit = 2.7;
 emaxpoly = 30;
-eminpoly = 5;
-% set these to zero in case someone tries to use refraction correction
-% but forgets to submit location for the site
-lat = 0;
-lon = 0;
-hell = 0;
+eminpoly = 5; 
 
 %these are the defaults checking azimuths in 45 degree bins
 % user can also limit it using varagin
@@ -145,9 +152,10 @@ end
 % only call this once at the top of your Lomb Scargle code.
  % this makes the grid for the station.  
 if refraction  
-   if exist([reflcode '/input/gpt2_1wA_' station '.txt'])
+   if exist([reflcode '/input/' station '_refr.txt'])
       disp('refraction file already exists')
       [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
+      fprintf(1,'Pressure %8.3f Temperature %8.3f \n', Pressure, Temperature);
    else
      disp('will attempt to make refraction file for this site')
      if lat == 0 && lon == 0
@@ -156,6 +164,7 @@ if refraction
      else
        gpt2_1w_grid_1site(station, lat, lon);
        [Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year,doy);
+       fprintf(1,'Pressure %8.3f Temperature %8.3f \n', Pressure, Temperature);
      end
    end
 end
@@ -214,6 +223,10 @@ maxArcTime = 1.25; % one hour and 15 minutes
 % 
 % Mininum number of points. This value could be used as QC
 minPoints = 25; %it is totally arbitrary for now.   
+% this says that if you ask for arcs from e=5 to 25, that the 
+% arcs chosen should be at least 7-23 (i.e. 2 degrees from the max and min)
+% you can remove this - but you don't want to be using tiny arcs when
+% you need the longer ones to resolve the SNR frequency.
 ediff = 2 ; % QC value - different than version 1 
  
 desiredPrecision = 0.01; % 1 cm is a reasonable level for now. 
@@ -285,14 +298,14 @@ for a=1:naz
 % call the lomb scargle code.  Input data have been scaled so that 
 % f comes out in units of RH (reflector heights) in meters
     [f,p,dd,dd2]=lomb(sortedX/cf, sortedY, ofac,hifac);
-    % restrict RH by user inputs
+    % restrict RH by user inputs. maxRH was already imposed when you
+    % picked get_ofac_hifac
     j=find(f > minRH); f=f(j); p = p(j);
     [ RHestimated, maxRHAmp, pknoise ] = peak2noise(f,p,frange);
 %  maxRH should be more than 2*lambda, or ~40-50 cm 
 % here i am restricting arcs to be < one hour.  long dt usually means  
 % you have a track that goes over midnite
-    maxObsE = max(elevAngles);
-    minObsE = min(elevAngles);   
+    maxObsE = max(elevAngles); minObsE = min(elevAngles);   
     if maxRHAmp > minAmp  & dt < maxArcTime & ...
          pknoise > pknoiseCrit & maxObsE > (emax-ediff) & minObsE < (emin+ediff) 
      % changed order of output to be more consistent with python code
@@ -300,8 +313,9 @@ for a=1:naz
       %  year,doy,RHestimated,maxRHAmp,azm, sat, dt*60, minObsE, ...
        %   maxObsE, pknoise,freqtype,meanUTC);
       riseSet = 0;      EdotF = 0; 
-      dmjd = 0;
-      %dmjd = get_mjd(year,doy,meanUTC);
+     % dmjd = 0;
+      % my_mjd(y,m,d,hour,minute,second);
+      dmjd = get_mjd(year,doy,meanUTC);
       fprintf(fid,'%4.0f %3.0f %7.3f %3.0f   %6.3f   %6.1f %5.1f   %5.2f   %5.2f %6.0f  %3.0f   %2.0f   %2.0f %7.2f   %5.2f  %13.6f %1.0f\n', ...
         year,doy,RHestimated,sat, meanUTC, azm, maxRHAmp, minObsE, maxObsE,  ...
         length(data),freqtype, riseSet, EdotF, pknoise,dt*60,dmjd,RefIndex);

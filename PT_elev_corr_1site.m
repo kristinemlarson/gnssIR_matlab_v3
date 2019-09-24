@@ -26,9 +26,10 @@ function [ Pressure, Temperature] = PT_elev_corr_1site(station,lat,lon,hell,year
 %     
 %----------------------------------------------------------
 nstat = 1;        % we do the calculations for nstat stations, i.e. one
-%it = 1;           % 0 means GPT2 with time variation, 1 means static
+it = 1;           % 0 means GPT2 with time variation, 1 means static
 % put in time variation
-it = 0;           % 0 means GPT2 with time variation, 1 means static
+%it = 0;           % 0 means GPT2 with time variation, 1 means static
+
 %dmjd = 56141.d0; % sample
 
 % change to radians
@@ -43,7 +44,7 @@ fprintf(1,'MJD %8.0f \n', dmjd);
 % The preferred option is the one degree grid
 [Pressure,Temperature,dT,Tm,e,ah,aw,lambda,undu] = ...
      gpt2_1w_1site(station, dmjd,dlat,dlon,hell,it);
-fprintf(1,'Pressure %8.2f Temperature %8.2f \n', Pressure, Temperature);
+%fprintf(1,'Pressure %8.2f Temperature %8.2f \n', Pressure, Temperature);
 
 
 end

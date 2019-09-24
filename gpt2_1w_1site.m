@@ -170,8 +170,8 @@ nsta=1; % only doing one station at a time
 
 % initialisation 
 
-    p=[];T=[]; dT=[]; Tm=[];
-    e =[]; ah =[]; aw = []; la =[]; undu=[];
+p=[];T=[]; dT=[]; Tm=[];
+e =[]; ah =[]; aw = []; la =[]; undu=[];
 % KL - one of these was missed.
 
 % change the reference epoch to January 1 2000
@@ -202,7 +202,9 @@ end
 %outdir = '';
 % 19sep26 KL added directory structure
 outdir = [ getenv('REFL_CODE') '/input/'];
-gridfile = [outdir 'gpt2_1wA_' station '.txt'];
+% changed the name to be consistent with python code
+gridfile = [outdir station '_refr.txt'];
+
  
 if ~exist( gridfile) 
  disp([ ' ... try to create  ' gridfile ]) 
