@@ -2,23 +2,22 @@
 This code is basd on a previous matlab library that was published in
 GPS Solutions (https://link.springer.com/article/10.1007/s10291-018-0744-8) and the GPS Tool Box 
 (https://www.ngs.noaa.gov/gps-toolbox/GNSS-IR.htm)
-It is also hosted on this gitHub account.
+That version is also hosted on this gitHub account.
 Version 3 is my attempt to make code available that is better oriented towards
 routine analysis and more similar to the python code.
 
-There is no refraction correction in the code as yet. Nor is the RH dot correction done.
+There is no RH dot correction as yet.  There is a simple refraction correction that you 
+can turn on/off in the main code.
+
 
 WARNING: These codes do not calculate soil moisture.
 
-I am still working on this documentation
 
 # Installing the code
 
 You need to define three environment variables:
 
-* EXE = where the Fortran translator executables will live. Also the code that
-translates certain RINEX files is needed and will be stored in this directory.  
-I do not control these codes - but they are very important modules in the GPS/GNSS communities.
+* EXE = where the non-matlab executables will live. 
 
 * ORBITS = where the GPS/GNSS orbits will be stored 
 
@@ -30,11 +29,11 @@ to define the wget executable and store that as environment variable WGET
 Executables 
 
 * My RINEX translators are on this gitHub acccount, bu if you are using Linux on a PC or MacOS,
-I will be posting static executable files as soon as I get a chance. The one you need should be renamed as gpsSNR.e and gnssSNR.e
-and stored in EXE.
+I will be posting static executable files as soon as I get a chance. The ones you need 
+must be named gpsSNR.e and gnssSNR.e and stored in EXE.
 
-* CRX2RNX, Compressed to Uncompressed RINEX, which you can find at http://terras.gsi.go.jp/ja/crx2rnx.html This must be stored 
-in the EXE directory.
+* CRX2RNX, Compressed to Uncompressed RINEX, which you can find at http://terras.gsi.go.jp/ja/crx2rnx.html 
+This must be stored in the EXE directory.
 
 
 # Running the Code
@@ -43,7 +42,7 @@ Change this function to set your environment variables: set_reflection_env_varia
 
 The main function call is gnssIR_lomb.m  It has both required and optional inputs.
 The function run_mulitple_days.m gives you an idea of how it could be called and used in a loop (i.e. through multiple
-days and years).
+days and years). I have also provided testcase_cryosphere.m for a site in Antarctica. 
 
 Required:
 * station name (4 characters, lowercase)
@@ -53,27 +52,28 @@ Required:
 * snrtype is integer shorthand for the kinds of elevation angle data you want to save
 from the RINEX file. Here are the allowed options:
 
-99 5-30 elev.
-66 < 30 elev.
-88 5-90 elev.
-50 < 10 elev.
+
+* 99 5-30 elev.
+* 66 < 30 elev.
+* 88 5-90 elev.
+* 50 < 10 elev.
 
 * plot2screen - boolean for whether you want to see the raw data plots. You will set 
 this to false once you understand your site.
 
 * gps_or_gnss - 1 is for GPS (nav orbits) and 2 is for GNSS (sp3 orbits which include all 
-constellations). This only matters if you want the code to translate the RINEX file for you.
+constellations). 
 
 
 Optional inputs (in this order):
 
-* elevation angle minimum, degrees
-* elevation angle maximum, degrees
-* min Reflector Height (m)
-* max Reflector Height (m)
-* min Azimuth, degrees
+* elevation angle minimum, degrees - default is set to 0.5
+* elevation angle maximum, degrees - default is set to 6
+* min Reflector Height (m) - default is set to 0.5
+* max Reflector Height (m) - default is set to 6
+* min Azimuth, degrees - default checks 8 quadrants - 45 degrees each
 * max Azimuth, degrees
-* minimum allowed Lomb Scargle Periodogram amplitude. 
+* minimum allowed Lomb Scargle Periodogram amplitude - 8
 
 Don't ask me where version 2 went - that is a secret.
 
