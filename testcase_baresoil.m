@@ -3,7 +3,8 @@
 % september 13, 2019
 
 % required inputs
-clear all
+clear 
+close all
 station = 'p041';
 year = 2019;
 % doy is in the loop
@@ -22,7 +23,7 @@ plot2screen = false;
 % file.  You can use GNSS for a GPS only file/station
 % GPS orbits are availalbe almost immediate. GNSS not so, a few days.
 % so if you are doing real-time, you will need another solution
-gps_or_gnss = 1;
+gps_or_gnss = 2;
 
 % these are optional (varargin) inputs - which need to be in this order
 emin =5; emax = 25;
@@ -36,8 +37,10 @@ lat = 39.9490 ; lon=  -105.1940; hell= 1728.856;
     
 % 
 
-for doy=120:150
-  gnssIR_lomb(station, year, doy,freq,snrtype,plot2screen,...
+for doy=122
+    for freq=[1 20 ]    
+      gnssIR_lomb(station, year, doy,freq,snrtype,plot2screen,...
       gps_or_gnss, emin,emax,h1,h2,lat,lon,hell);
+    end
    
 end

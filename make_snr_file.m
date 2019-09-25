@@ -29,6 +29,20 @@ reflcode=getenv('REFL_CODE');
 % can't get wget to show up when using bash (works fine with csh)
 wgetexe=getenv('WGET');
 
+finalsnr='';
+if gps_or_gnss == 2
+  if ~exist([exe '/gnssSNR.e'])
+    disp(['The rinex translator executable is missing:' exe '/gnssSNR.e']);
+    return
+  end
+end
+if gps_or_gnss == 1
+  if ~exist([exe '/gpsSNR.e'])
+    disp(['The rinex translator executable is missing:' exe '/gpsSNR.e']);
+    return
+  end
+end
+   
 % output - assume they will be in your main directory for now
 snrfilename = [station cdoy '0.' cyy '.snr' num2str(snrc)];
 snrdirname = [reflcode '/' cyyyy '/snr/' station];
@@ -93,10 +107,10 @@ if ~exist(finalsnr)
  
   if exist(rinexfilename)
       if gps_or_gnss == 2
-        if exist(sp3file)  
-          dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' sp3file ' ' num2str(snrc) ];
-          unix(dd);
-        end
+         if exist(sp3file)  
+             dd = [exe '/gnssSNR.e ' rinexfilename ' ' finalsnr  ' ' sp3file ' ' num2str(snrc) ];
+            unix(dd);
+         end         
       else
         if exist(navfile)
           dd = [exe '/gpsSNR.e ' rinexfilename ' ' finalsnr ' ' navfile ' ' num2str(snrc) ];
