@@ -190,7 +190,8 @@ k=1; % only one station
 % save the new grid to a txt file
 %-------------------
 comL='%';
-outname = [outdir 'gpt2_1wA_' station '.txt'];
+outname = [outdir  station '_refr.txt'];
+%outname = [outdir 'gpt2_1wA_' station '.txt'];
 disp(['writing file out to: ' outname]);
 fid=fopen(outname,'w');
 
