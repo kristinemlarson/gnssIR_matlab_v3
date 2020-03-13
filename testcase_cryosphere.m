@@ -44,7 +44,7 @@ lat = -77.94760400 ; lon= 166.75690300; hell= -39.9;
 % this site should have f=5, but they were not in the rinex files
 % when i converted them. L2C should be there and if you select freq = 20
 % you will get them.
-for doy=135:166
+for doy=135:135
     for freq=[1]
       gnssIR_lomb(station, year, doy,freq,snrtype,plot2screen,...
       gps_or_gnss, emin,emax,h1,h2,lat,lon,hell);
@@ -53,4 +53,4 @@ for doy=135:166
 end
 % very simple plot - only suitable for daily average applications like
 % snow accumulation
-plot_results('lorg',2019,0.25)
+plot_results('lorg',2019,0.25);

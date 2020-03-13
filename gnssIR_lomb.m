@@ -106,7 +106,7 @@ make_refl_directories(reflcode, cyyyy, station)
 
 % assume you want to make the refraction correction
 refraction = false;
-% refraction = true;
+%refraction = true;
 % refraction = false;
 % DO NOT MIX RESULTS WHERE refraction WAS and WAS NOT applied.
 % the output file has a column that tells you what you did so

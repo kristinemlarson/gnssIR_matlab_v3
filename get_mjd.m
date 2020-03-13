@@ -3,6 +3,7 @@ function dmjd = get_mjd(year, doy, meanUTC);
 % Note: hours are actually in GPS time, so they will be off by
 % 15-20 seconds or so
 % returns modified julian date
+% wrote this to avoid using mjuliandate, which is in the aerospace toolbox
 % kristine m. larson
 
 % for goofy times

@@ -12,6 +12,9 @@ wgetexe=getenv('WGET');
 orbits =getenv('ORBITS');
 
 [file1,file4] = igsname(year,doy,'gbm');
+% so it doesn't crash if the sp3 file does not exist, 
+% you need to give fname a default value
+fname = file1
 
 file2 = [file1 '.gz'];
  
