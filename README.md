@@ -1,4 +1,9 @@
 # gnssIR_matlab_v3
+
+Update: April 11, 2020
+I have updated get_navfile.m. This removes a previous poor choice of nav archive (UNAVCO),
+and provides two new and better ones: CDDIS and NGS. As before, it also checks SOPAC.
+
 This code is basd on a previous matlab library that was published in
 GPS Solutions (https://link.springer.com/article/10.1007/s10291-018-0744-8) and the GPS Tool Box 
 (https://www.ngs.noaa.gov/gps-toolbox/GNSS-IR.htm)
